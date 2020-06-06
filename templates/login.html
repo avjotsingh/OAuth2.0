@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+
+<html>
+  <head>      
+    <meta name="google-signin-scope" content="profile email">
+    <meta name="google-signin-client_id" content="644103313448-r4gb2nko63fn56gpvq2p091kmk2nei6l.apps.googleusercontent.com">
+    <!-- To integrate Google Sign-in -->
+    <script src="https://apis.google.com/js/api.js"></script>
+    <script src="https://apis.google.com/js/platform.js" async defer></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+  </head>
+  <body>
+    <div id="signInButton" class="g-signin2" data-onsuccess="onSignIn"></div>
+    <div id="result"></div>
+    <script>
+      function onSignIn(googleUser) {
+        id_token = googleUser.getAuthResponse().id_token;
+        var xhr = new XMLHttpRequest();
+        xhr.onreadystatechange = function() { // listen for state changes
+          if (xhr.readyState == 4 && xhr.status == 200) { // when completed we can move away
+            window.location.href = "/restaurant";
+          }
+        }
+        xhr.open('POST', '/gconnect?state={{STATE}}');
+        xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+        xhr.onload = function() {
+          console.log('Signed in as: ' + xhr.responseText);
+        };
+        xhr.send('idtoken=' + id_token);
+      };
+
+
+      function onSignIn2(googleUser) {
+        var auth_response = googleUser.getAuthResponse();
+        console.log(auth_response);
+        $.ajax({
+        type: 'POST',
+        url: '/gconnect?state={{STATE}}',
+        processData: false,
+        data: auth_response['id_token'],
+        success: function(result) {
+          // Handle or verify the server response if necessary.
+          if (result) {
+            $('#result').html('Login Successful!</br>'+ result + '</br>Redirecting...')
+           setTimeout(function() {
+            window.location.href = "/restaurant";
+           }, 4000);
+
+          } else if (auth_response['error']) {
+          console.log('There was an error: ' + authResult['error']);
+
+          } else {
+          $('#result').html('Failed to make a server-side call. Check your configuration and console.');
+
+            }
+          }
+        });
+      }
+    </script>
+  </body>
+</html>
